@@ -1,0 +1,16 @@
+{
+    "name": "qcubed/phonetextbox",
+    "description": "QCubed text box plugin that validates U.S. phone numbers.",
+    "type": "qcubed-library",
+    "keywords": ["qcubed", "phone"],
+    "license": "MIT",
+    "require": {
+        "php": ">=5.3"
+    },
+    "autoload": {
+        "psr-4": { "QCubed\\Control\\": "src/" }
+    },
+    "extra": {
+        "examples": ["phonetextbox.php"]
+    }
+}
