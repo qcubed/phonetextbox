@@ -16,6 +16,8 @@ use QCubed\Project\Application;
 use QCubed\Project\Control\TextBox;
 use QCubed\Type;
 
+require_once (dirname(__DIR__) . "/i18n/i18n-lib.inc.php");
+
 // we need a better way of reconfiguring JS assets
 if (!defined('QCUBED_PHONETEXTBOX_ASSETS_URL')) {
     define('QCUBED_PHONETEXTBOX_ASSETS_URL', QCUBED_BASE_URL . '/phonetextbox/assets');
@@ -34,6 +36,8 @@ if (!defined('QCUBED_PHONETEXTBOX_ASSETS_URL')) {
  * $txtPhone->Name = 'Home Phone';
  * $txtPhone->Text = $this->objPeople->HomePhone;
  *
+ * @property string $DefaultAreaCode The default area code to prefill with.
+ *
  * @authors	Michael Ho, Shannon Pekary, Alex Weinstein
  * @package QCubed\Control
  */
@@ -41,20 +45,31 @@ class PhoneTextBox extends TextBox {
 
 	/** @var string */
 	protected $strDefaultAreaCode = null;	// set this to the default area code to enter in the box when the field is entered.
-	
-	
+
+    /**
+     * PhoneTextBox constructor.
+     * @param Q\Project\Control\ControlBase|Q\Project\Control\FormBase $objParentObject
+     * @param null $strControlId
+     */
 	public function __construct($objParentObject, $strControlId = null) {
 		parent::__construct($objParentObject, $strControlId);
 		
 		$this->addJavascriptFile(QCUBED_PHONETEXTBOX_ASSETS_URL . "/js/qcubed.phonetextbox.js");
 	}
 
+
+    /**
+     * @return null|array
+     */
 	protected function makeJqOptions() {
 		$jqOptions = null;
 		if (!is_null($val = $this->DefaultAreaCode)) {$jqOptions['defaultAreaCode'] = $val;}
 		return $jqOptions;
 	}
 
+    /**
+     * @return string
+     */
 	public function getEndScript() {
         $strId = $this->getJqControlId();
         $jqOptions = $this->makeJqOptions();
@@ -77,10 +92,16 @@ class PhoneTextBox extends TextBox {
 	}
 
 
+    /**
+     * @return string
+     */
 	public function getJqSetupFunction() {
 		return 'phoneTextBox';
 	}
 
+    /**
+     * @return bool
+     */
 	public function validate() {
 		if (parent::validate()) {
 			$this->strText = trim ($this->strText);
@@ -92,7 +113,7 @@ class PhoneTextBox extends TextBox {
 				}
 					
 				if (! preg_match("/$pattern/", $this->strText)) {
-					$this->ValidationError = t("Invalid phone number");
+					$this->ValidationError = Q\Phonetextbox\t("Invalid phone number");
 					return false;
 				}
 			}
@@ -103,16 +124,22 @@ class PhoneTextBox extends TextBox {
 		return true;
 	}
 
+    /**
+     * @param string $strName
+     * @param string $mixValue
+     * @return void
+     * @throws Caller
+     */
 	public function __set($strName, $mixValue) {
 		switch ($strName) {
 			case "DefaultAreaCode":
 				try {
-					return ($this->strDefaultAreaCode = Type::Cast($mixValue, Type::STRING));
+                    $this->strDefaultAreaCode = Type::Cast($mixValue, Type::STRING);
 				} catch (Caller $objExc) {
 					$objExc->IncrementOffset();
 					throw $objExc;
 				}
-
+            break;
 
 			case "Text":
 			case "Value":
@@ -131,7 +158,12 @@ class PhoneTextBox extends TextBox {
 				}
 		}
 	}
-	
+
+    /**
+     * @param string $strName
+     * @return mixed
+     * @throws Caller
+     */
 	public function __get($strName) {
 		switch ($strName) {
 			case "DefaultAreaCode": return $this->strDefaultAreaCode;
